@@ -44,9 +44,6 @@ contract MyStrategy is BaseStrategy {
     // We add liquidity here
     address public constant CURVE_POOL =
         0x3E01dD8a5E1fb3481F0F589056b428Fc308AF0Fb;
-    // Swap here
-    address public constant SUSHISWAP_ROUTER =
-        0x1b02dA8Cb0d097eB8D57A175b88c7D8b47997506;
 
     // CRV Emissions sent to
     address public constant badgerTree =
@@ -54,6 +51,10 @@ contract MyStrategy is BaseStrategy {
 
     // NOTE: Gauge can change, see setGauge
     address public gauge; // Set in initialize
+
+    // Swap via Swapr
+    address public constant SWAPR_ROUTER =
+        0x530476d5583724A89c8841eB6Da76E7Af4C0F17E;
 
     function initialize(
         address _governance,
@@ -86,10 +87,7 @@ contract MyStrategy is BaseStrategy {
 
         /// @dev do one off approvals here
         IERC20Upgradeable(want).safeApprove(gauge, type(uint256).max);
-        IERC20Upgradeable(reward).safeApprove(
-            SUSHISWAP_ROUTER,
-            type(uint256).max
-        );
+        IERC20Upgradeable(reward).safeApprove(SWAPR_ROUTER, type(uint256).max);
         IERC20Upgradeable(WBTC).safeApprove(CURVE_POOL, type(uint256).max);
     }
 
@@ -112,6 +110,13 @@ contract MyStrategy is BaseStrategy {
         ICurveGauge(gauge).deposit(
             IERC20Upgradeable(want).balanceOf(address(this))
         );
+    }
+
+    /// @dev Add Allowance to SWAPR_ROUTER
+    /// @dev used here because we upgraded the strat to use this
+    function setSwaprAllowance() public {
+        _onlyGovernance();
+        IERC20Upgradeable(reward).safeApprove(SWAPR_ROUTER, type(uint256).max);
     }
 
     /// ===== View Functions =====
@@ -235,7 +240,7 @@ contract MyStrategy is BaseStrategy {
         path[0] = reward;
         path[1] = WETH;
         path[2] = WBTC;
-        IUniswapRouterV2(SUSHISWAP_ROUTER).swapExactTokensForTokens(
+        IUniswapRouterV2(SWAPR_ROUTER).swapExactTokensForTokens(
             rewardsToReinvest,
             0,
             path,
