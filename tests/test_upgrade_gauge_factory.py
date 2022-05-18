@@ -15,6 +15,8 @@ from config import (
     REWARD_TOKEN,
     PROTECTED_TOKENS,
     FEES,
+    GAUGE,
+    GAUGE_FACTORY
 )
 from helpers.SnapshotManager import SnapshotManager
 
@@ -27,9 +29,6 @@ Tests for the Upgrade from mainnet version to upgraded version
 These tests must be run on arbitrum-fork
 """
 
-NEW_GAUGE = "0xDB3fd1bfC67b5D4325cb31C04E0Cae52f1787FD6"
-NEW_GAUGE_FACTORY = "0xabC000d88f23Bb45525E447528DBF656A9D55bf5"
-ZERO_ADDRESS = "0x0000000000000000000000000000000000000000"
 
 
 @pytest.fixture
@@ -85,13 +84,13 @@ def test_upgrade_and_harvest(vault_proxy, controller_proxy, deployer, strat_prox
     # Deploy new logic
     proxy_admin.upgrade(strat_proxy, new_strat_logic, {"from": proxy_admin_gov})
     # Set new gauge
-    strat_proxy.setGauge(NEW_GAUGE, {"from": gov})
-    strat_proxy.setGaugeFactory(NEW_GAUGE_FACTORY, {"from": gov})
+    strat_proxy.setGauge(GAUGE, {"from": gov})
+    strat_proxy.setGaugeFactory(GAUGE_FACTORY, {"from": gov})
 
-    assert strat_proxy.gauge() == NEW_GAUGE
-    assert strat_proxy.gaugeFactory() == NEW_GAUGE_FACTORY
+    assert strat_proxy.gauge() == GAUGE
+    assert strat_proxy.gaugeFactory() == GAUGE_FACTORY
 
-    gauge = interface.ICurveGauge(NEW_GAUGE)
+    gauge = interface.ICurveGauge(GAUGE)
     
     want = interface.IERC20(WANT)
     prev_bal = gauge.balanceOf(strat_proxy.address)
@@ -118,8 +117,8 @@ def test_upgrade_and_harvest(vault_proxy, controller_proxy, deployer, strat_prox
     assert prev_reward == strat_proxy.reward()
     assert prev_unit == strat_proxy.uniswap()
     assert prev_swapr_router == strat_proxy.SWAPR_ROUTER()
-    assert NEW_GAUGE == strat_proxy.gauge()
-    assert NEW_GAUGE_FACTORY == strat_proxy.gaugeFactory()
+    assert GAUGE == strat_proxy.gauge()
+    assert GAUGE_FACTORY == strat_proxy.gaugeFactory()
 
     ## Also run all ordinary operation just because
     strat_proxy.tend({"from": gov})
