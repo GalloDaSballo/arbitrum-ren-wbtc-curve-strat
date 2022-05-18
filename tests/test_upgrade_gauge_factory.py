@@ -16,6 +16,8 @@ from config import (
     PROTECTED_TOKENS,
     FEES,
 )
+from helpers.SnapshotManager import SnapshotManager
+
 from dotmap import DotMap
 import pytest
 
@@ -97,8 +99,9 @@ def test_upgrade_and_harvest(vault_proxy, controller_proxy, deployer, strat_prox
     brownie.chain.sleep(60*60*24)
     brownie.chain.mine()
 
-    ## Now it will work
-    strat_proxy.harvest({"from": gov})
+    snap = SnapshotManager(vault_proxy, strat_proxy, controller_proxy, "StrategySnapshot")
+    # Will confirm full harvest functionality
+    snap.settHarvest({"from": gov})
 
     after_bal = gauge.balanceOf(strat_proxy.address)
 
