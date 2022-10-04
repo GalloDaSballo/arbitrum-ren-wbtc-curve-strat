@@ -97,6 +97,9 @@ contract MyStrategy is BaseStrategy {
         IERC20Upgradeable(want).safeApprove(gauge, type(uint256).max);
         IERC20Upgradeable(reward).safeApprove(SWAPR_ROUTER, type(uint256).max);
         IERC20Upgradeable(WBTC).safeApprove(CURVE_POOL, type(uint256).max);
+
+        /// @dev We set allowance here as well, in case it's redeployed somewhere else
+        IERC20Upgradeable(reward).safeApprove(UNIV3_ROUTER, type(uint256).max);
     }
 
     /// @dev Governance Set new Gauge Function
