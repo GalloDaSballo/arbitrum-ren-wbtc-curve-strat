@@ -28,6 +28,10 @@ Tests for the Upgrade from mainnet version to upgraded version
 These tests must be run on arbitrum-fork
 """
 
+"""
+    NOTE: This test is obsolete
+"""
+
 
 
 @pytest.fixture
