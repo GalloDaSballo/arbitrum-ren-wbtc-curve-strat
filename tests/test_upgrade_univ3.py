@@ -8,7 +8,6 @@ from brownie import (
     Controller,
     SettV3,
     MyStrategy,
-    ERC20Upgradeable,
     Contract
 )
 from dotmap import DotMap
